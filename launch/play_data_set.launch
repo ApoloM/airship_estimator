@@ -20,17 +20,16 @@
 	  <remap from="joint_states" to="joint_states_real" />
 	</node>
 
-  	<!-- <node pkg="rosbag" type="play" name="rosbag_with_results" required="true" args="/home/apolo/catkin_ws/bag_files/data_set_2019-02-20-13-32-04.bag /home/apolo/catkin_ws/bag_files/results_2019-02-20-13-32-04.bag"/> -->
-  	<node pkg="rosbag" type="play" name="rosbag_data_set" required="true" args="/home/apolo/catkin_ws/bag_files/data_set.bag"/>
+  	<node pkg="rosbag" type="play" name="rosbag_data_set" required="true" args="$(find airship_estimator)/bag_files/data_set.bag"/>
 
 
 	<include file="$(find droni_sim)/launch/ekf.launch"/>
-	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o /home/apolo/catkin_ws/bag_files/results_ekf -a" /> -->
+	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ekf -a" /> -->
 
 	<include file="$(find droni_sim)/launch/ukf.launch"/>
-	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o /home/apolo/catkin_ws/bag_files/results_ukf -a" /> -->
+	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ukf -a" /> -->
 
 	<include file="$(find droni_sim)/launch/lpf.launch"/>
-	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o /home/apolo/catkin_ws/bag_files/results_lpf -a"/> -->
+	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_lpf -a"/> -->
 
 </launch>
