@@ -25,4 +25,4 @@ You can configure Acceleration correction parameters by editing the file:
 config/accel_estimator_params.yaml
 ```
 
-
+In file ```launch/play_data_set.launch``` you can comment/uncomment some lines to change between EKF/UKF/LPF filters as you want.
