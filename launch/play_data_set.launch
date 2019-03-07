@@ -24,12 +24,12 @@
 
 
 	<include file="$(find airship_estimator)/launch/ekf.launch"/>
-	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ekf -a" /> -->
+	 <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ekf -a" />
 
-	<include file="$(find airship_estimator)/launch/ukf.launch"/>
-	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ukf -a" /> -->
+	<!-- <include file="$(find airship_estimator)/launch/ukf.launch"/>
+	<node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ukf -a" /> -->
 
-	<include file="$(find airship_estimator)/launch/lpf.launch"/>
-	<!-- <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_lpf -a"/> -->
+	<!-- <include file="$(find airship_estimator)/launch/lpf.launch"/>
+	<node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_lpf -a"/> -->
 
 </launch>
