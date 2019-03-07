@@ -1,0 +1,7 @@
+<launch> 
+	
+<node pkg="droni_sim" type="lpf_node" name="lpf_node">
+    <remap from="/odometry/filtered" to="/odometry/filtered_lpf"/>
+</node>
+
+</launch>
