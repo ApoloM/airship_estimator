@@ -126,7 +126,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/droni_sim.cpp
+#   src/${PROJECT_NAME}/airship_estimator.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -202,7 +202,7 @@ target_link_libraries(frame_converter_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_droni_sim.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_airship_estimator.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
