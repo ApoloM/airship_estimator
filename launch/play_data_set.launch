@@ -19,12 +19,16 @@
 	  <remap from="robot_description" to="robot_description_real" />
 	  <remap from="joint_states" to="joint_states_real" />
 	</node>
+	<rosparam param="use_sim_time">true</rosparam>
 
-  	<node pkg="rosbag" type="play" name="rosbag_data_set" required="true" args="$(find airship_estimator)/bag_files/data_set.bag"/>
-
+  <!-- 	<node pkg="rosbag" type="play" name="rosbag_data_set" required="true" args="$(find airship_estimator)/bag_files/data_set.bag"/>
+ -->
 
 	<include file="$(find airship_estimator)/launch/ekf.launch"/>
-	 <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ekf -a" />
+<!-- 	 <node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ekf -a" />
+ -->
+<!-- 	<include file="$(find airship_estimator)/launch/wind_estimator.launch"/>
+ -->
 
 	<!-- <include file="$(find airship_estimator)/launch/ukf.launch"/>
 	<node pkg="rosbag" type="record" name="record_results" args="record -o $(find airship_estimator)/bag_files/results_ukf -a" /> -->

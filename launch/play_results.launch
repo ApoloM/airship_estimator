@@ -1,4 +1,5 @@
 <launch>
+	<rosparam param="use_sim_time">true</rosparam>
 	<arg name="model" default="$(find airship_estimator)/urdf/01-blimp.urdf.xacro"/>
 	<arg name="model_2" default="$(find airship_estimator)/urdf/02-blimp.urdf.xacro"/>
 
