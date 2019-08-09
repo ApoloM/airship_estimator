@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
+#include <tf/transform_datatypes.h>
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/AccelStamped.h>
@@ -9,8 +10,8 @@
 #include <iterator> // for back_inserter 
 #include <Eigen/Geometry>
 
-#define NUM_STATES 7
-#define NUM_MEASURES 4
+#define NUM_STATES 3
+#define NUM_MEASURES 6
 
 nav_msgs::Odometry odom;
 geometry_msgs::AccelStamped accel;
@@ -22,6 +23,7 @@ std::string pub_estimated_wind_topic_name //topic name
           , sensor_frame_id
           , robot_frame_id
           , sub_pitot_topic_name
+          , sub_nn_estimator_topic_name
           ;
 
 Eigen::MatrixXd Q(NUM_STATES,NUM_STATES)//Process covariance
@@ -37,11 +39,16 @@ Eigen::MatrixXd Q(NUM_STATES,NUM_STATES)//Process covariance
 			  , I(NUM_STATES, NUM_STATES)
 			  , P_0(NUM_STATES,NUM_STATES)
 			  , S(3,3)
-			  , h_xk(4,1)
+			  , h_xk(NUM_MEASURES,1)
 			  , L(NUM_STATES,NUM_STATES)
+			  , Vg(3,1)
+			  , Vg_enu(3,1)
+			  , measurement_covariance_matrix(NUM_MEASURES, NUM_MEASURES)
 			  ;
 
-double lambda_rdot;
+geometry_msgs::Vector3Stamped windSpeedNNEstimation;
+
+double Vpitot, lambda_rdot;
 
 void predict();
 
@@ -56,7 +63,6 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg)
 	odom = *odom_msg;
 
 	predict();
-
 	update();
 }
 
@@ -66,14 +72,18 @@ void accelCallback(const geometry_msgs::AccelStamped::ConstPtr& accel_msg){
 
 void pitotCallback(const std_msgs::Float64& pitot_msg){
 	pitotPressure = pitot_msg.data;//0.57*pow(pitot_msg.data,2);
+	R << measurement_covariance_matrix;
 
 	//Update pitot covariance
 	double r_dot = std::abs(accel.accel.angular.z);
-	// for(int i=0;i<NUM_MEASURES; i++)
-		R(3,3) = R(3,3)*(1.0+lambda_rdot*r_dot);
-
+	for(int i=0;i<NUM_MEASURES; i++){
+		R(i,i) = R(i,i)*(1.0+lambda_rdot*r_dot);
+	}
 }
 
+void nnEstimationCallback(const geometry_msgs::Vector3Stamped::ConstPtr& windSpeedNN_msg){
+	windSpeedNNEstimation = *windSpeedNN_msg;
+}
 
 int main(int argc, char **argv)
 {
@@ -87,7 +97,7 @@ int main(int argc, char **argv)
 	* You must call one of the versions of ros::init() before using any other
 	* part of the ROS system.
 	*/
-	ros::init(argc, argv, "wind_estimator");
+	ros::init(argc, argv, "wind_estimator_hybrid");
 
 	/**
 	* NodeHandle is the main access point to communications with the ROS system.
@@ -101,9 +111,9 @@ int main(int argc, char **argv)
 	ros::Subscriber sub_odom_ = nh.subscribe(sub_odom_topic_name, 10, odomCallback);
 	ros::Subscriber sub_accel_filtered_ = nh.subscribe(sub_accel_topic_name, 10, accelCallback);
 	ros::Subscriber sub_pitot_ = nh.subscribe(sub_pitot_topic_name, 10, pitotCallback);
+	ros::Subscriber sub_nn_estimator_ = nh.subscribe(sub_nn_estimator_topic_name, 10, nnEstimationCallback);
 
 	estimated_wind_pub_ = nh.advertise<geometry_msgs::Vector3Stamped>(pub_estimated_wind_topic_name, 10);
-
 
 	ros::spin();
 
@@ -112,10 +122,11 @@ int main(int argc, char **argv)
 
 void loadParams(ros::NodeHandle nh){
 
-	nh.param<std::string>("pub_estimated_wind_topic_name", pub_estimated_wind_topic_name, "/wind_speed/filtered");
+	nh.param<std::string>("pub_estimated_wind_topic_name", pub_estimated_wind_topic_name, "/wind_speed/filtered_hybrid");
 	nh.param<std::string>("sub_odom_topic_name", sub_odom_topic_name, "/odometry/filtered");
-	nh.param<std::string>("sub_accel_topic_name", sub_accel_topic_name, "/accel/filtered");
+	nh.param<std::string>("sub_accel_topic_name", sub_accel_topic_name, "/droni_sensors/angular_accel_filtered");
 	nh.param<std::string>("sub_pitot_topic_name", sub_pitot_topic_name, "/droni_sensors/pitot_pressure");
+	nh.param<std::string>("sub_nn_estimator_topic_name", sub_nn_estimator_topic_name, "/wind_speed/filtered_nn");
 
 	nh.param<std::string>("robot_frame_id", robot_frame_id, "base_link");
 	nh.param<std::string>("sensor_frame_id", sensor_frame_id, "gondola_link");
@@ -123,7 +134,7 @@ void loadParams(ros::NodeHandle nh){
 
 	std::vector<double> process_covariance(NUM_STATES, 1.0);
 	if(nh.hasParam("process_covariance"))
-		nh.getParam("process_covariance", process_covariance);	
+		nh.getParam("process_covariance", process_covariance);
 	for(int i=0; i<NUM_STATES;i++){
 		Q(i,i) = process_covariance.at(i);
 	}
@@ -132,7 +143,7 @@ void loadParams(ros::NodeHandle nh){
 	if(nh.hasParam("measurement_covariance"))
 		nh.getParam("measurement_covariance", measurement_covariance);
 	for(int i=0; i<NUM_MEASURES;i++){
-		R(i,i) = measurement_covariance.at(i);
+		measurement_covariance_matrix(i,i) = measurement_covariance.at(i);
 	}
 
 	std::vector<double> initial_covariance(NUM_STATES, 1.0);
@@ -149,13 +160,15 @@ void loadParams(ros::NodeHandle nh){
 	std::vector<double> initial_state(NUM_STATES, 1.0);
 	if(nh.hasParam("initial_state"))
 		nh.getParam("initial_state", initial_state);
+
 	for(int i=0; i<NUM_STATES;i++){
 		x_hat(i,0) = initial_state.at(i);
 	}
 
+
 	I.setIdentity(NUM_STATES, NUM_STATES);
 	std::cout << "I: " << I << std::endl;
-	std::cout << "R: " << R << std::endl;
+	std::cout << "R: " << measurement_covariance_matrix << std::endl;
 	std::cout << "Q: " << Q << std::endl;
 
     pitotPressure=0.0;
@@ -165,46 +178,55 @@ void predict(){
 	//Updating matrix S
 	updateRotationMatrix(odom.pose.pose.orientation);
 	
-	Eigen::MatrixXd Vg(3,1), Vg_enu(3,1);
 	Vg(0,0) = odom.twist.twist.linear.x;
 	Vg(1,0) = odom.twist.twist.linear.y;
 	Vg(2,0) = odom.twist.twist.linear.z;
 	Vg_enu = S*Vg;
 
-	zk(0,0) = Vg_enu(0,0);
-	zk(1,0) = Vg_enu(1,0);
-	zk(2,0) = Vg_enu(2,0);
-	zk(3,0) = pitotPressure;
+	Vpitot = sqrt(pitotPressure);
+
+	zk(0,0) = pow(Vpitot,2);//Vpitot^2
+	zk(1,0) = Vg_enu(1,0);//VN
+	zk(2,0) = Vg_enu(0,0);//VE
+	zk(3,0) = windSpeedNNEstimation.vector.x;//VN
+	zk(4,0) = windSpeedNNEstimation.vector.y;//VE
+	zk(5,0) = windSpeedNNEstimation.vector.z;//VE
+
 	P = F*P*F.transpose() + Q;
 }
 
 void update(){
-	Eigen::MatrixXd Vw_hat(3,1), Va_hat(3,1);
+	double VNw = x_hat(0,0), VEw = x_hat(1,0), cf = x_hat(2,0),
+		   VN = Vg_enu(1,0), VE = Vg_enu(0,0), VD = -Vg_enu(2,0);
 
-	
-	double ua_hat = x_hat(4,0);
-	Vw_hat << x_hat(0,0),
-			  x_hat(1,0),
-			  x_hat(2,0);
-  	double eta = x_hat(3,0);
-	Va_hat << x_hat(4,0),
-			  x_hat(5,0),
-			  x_hat(6,0);
+    Eigen::MatrixXd Vpitot_local(3,1), Vpitot_enu(3,1);
+    Vpitot_local<< Vpitot,
+    			 0.0,
+    			 0.0;
+	Vpitot_enu = S*Vpitot_local;
 
-	h_xk << Vw_hat + S*Va_hat,
-			eta*pow(ua_hat,2);
+	h_xk << cf*cf*(pow((VN-VNw),2)+pow((VE-VEw),2)+pow(VD,2)),//Vpitot^2
+			Vpitot_enu(1,0)/cf + VNw,//VN
+			Vpitot_enu(0,0)/cf + VEw,//VE
+			VNw,
+			VEw,
+			cf;
 
-	H << 1, 0, 0, 0, S(0,0), S(0,1), S(0,2),
-		 0, 1, 0, 0, S(1,0), S(1,1), S(1,2),
-		 0, 0, 1, 0, S(2,0), S(2,1), S(2,2),
-		 0, 0, 0, ua_hat*ua_hat, 2*eta*ua_hat, 0, 0;
+	H << -2*cf*cf*(VN-VNw), -2*cf*cf*(VE-VEw), 2*cf*(pow((VN-VNw),2)+pow((VE-VEw),2)+pow(VD,2)),
+            1, 0, -(Vpitot_enu(1,0))/(cf*cf),
+			0, 1, -(Vpitot_enu(0,0))/(cf*cf),
+			1,0,0,
+			0,1,0,
+			0,0,1;
 
 	C = H*P*H.transpose() + R;
 
 	K = P*H.transpose()*C.inverse();
 	x_hat = x_hat+K*(zk - h_xk);
 	L = (I - K*H);
-	P = L*P; 
+	P = L*P;//*L.transpose()+K*R*K.transpose();
+
+	// std::cout << "x_hat: " << x_hat << std::endl;
 
 	geometry_msgs::Vector3Stamped windSpeed;
 	windSpeed.vector.x=x_hat(0,0);
@@ -212,12 +234,6 @@ void update(){
 	windSpeed.vector.z=x_hat(2,0);
 	windSpeed.header.stamp = ros::Time::now();
 	windSpeed.header.frame_id = robot_frame_id;
-
-	// ROS_INFO_STREAM("x_hat: " << x_hat);
-	// ROS_INFO("wind_x:%f", x_hat(0,0));
-	// ROS_INFO("wind_y:%f", x_hat(1,0));
-	// ROS_INFO("wind_z:%f", x_hat(2,0));
-	// ROS_INFO("eta: %f", eta);
 
 	estimated_wind_pub_.publish(windSpeed);
 }
@@ -228,21 +244,11 @@ void updateRotationMatrix(geometry_msgs::Quaternion orientation){
 
 	double roll, pitch, yaw;
 	tf::Matrix3x3(tf_q).getRPY( roll, pitch,yaw);
-	// std::cout << "tf rpy: " << roll << "," << pitch << "," << yaw << std::endl;
 
 	tf::Quaternion tf_q_enu = tf::createQuaternionFromRPY(roll,  pitch, yaw);
 
 	Eigen::Quaterniond q(tf_q_enu.getW(), tf_q_enu.getX(), tf_q_enu.getY(), tf_q_enu.getZ());
 
 	S = q.normalized().toRotationMatrix();
-	// Eigen::MatrixXd x_unit(3,1);
-	// Eigen::MatrixXd x_enu(3,1);
-	// x_unit(0,0) = 1.0;
-	// x_unit(1,0) = 0.0;
-	// x_unit(2,0) = 0.0;
-
-	// x_enu = S*x_unit;
-
-	// std::cout << "S: " << S(0,0) << "," << S(1,0) << "," << S(2,0) << std::endl;
-	// std::cout << "x_enu: " << x_enu << std::endl;
 }
+

@@ -9,4 +9,11 @@
 <node pkg="airship_estimator" type="wind_estimator_cho2011_node" name="wind_estimator_cho2011_node" output="screen">
     <rosparam command="load" file="$(find airship_estimator)/config/wind_estimator_cho2011_params.yaml" />
 </node>
+
+<node pkg="airship_estimator" type="wind_estimator_hybrid_node" name="wind_estimator_hybrid_node" output="screen">
+    <rosparam command="load" file="$(find airship_estimator)/config/wind_estimator_hybrid_params.yaml" />
+</node>
+
+<node pkg="airship_estimator" type="wind_estimator_nn.py" name="wind_estimator_nn_node" output="screen"/>
+
 </launch>
