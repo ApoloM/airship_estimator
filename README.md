@@ -53,7 +53,7 @@ If you find this code useful in your research, please consider citing:
     @inproceedings{marton2019SBAI,
         year = {2019},
         month = {oct},
-        author = {Apolo S. Marton and Lucas A. C. de O. Nogueira and André Fioravanti and Ely C. de Paiva},
+	    author = { Marton, A. S. and Nogueira, L. A. C. de O. and Fioravanti, A. and de Paiva, E. C.},
         title = {Comparative study for Robotic Airship State estimation with LPF, EKF and UKF},
         booktitle = {2017 {SBAI} - XIV  Simp{\'{o}}sio Brasileiro de Automa{\c{c}}{\~{a}}o Inteligente}
     }
