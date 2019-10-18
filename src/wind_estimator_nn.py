@@ -44,7 +44,7 @@ def run_nn_estimator():
     Vg = np.array([[odom.twist.twist.linear.x], [odom.twist.twist.linear.y], [odom.twist.twist.linear.z],[1]])
     Venu= S.dot(Vg)
     
-    print(Venu)
+    # print(Venu)
 
     ua = math.sqrt(pitot_pressure)
     # ua2_inp = math.pow(ua,2)
