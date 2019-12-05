@@ -6,15 +6,19 @@ The package contains algorithms for estimation of pose and velocity of the airsh
 
 
 ## First steps
-It is a pre-requisite to have ROS melodic installed. You can found it in [ROS wiki](http://wiki.ros.org/ROS/Installation). After the ROS isntallation follow the following steps.
+It is a pre-requisite the [ROS](http://wiki.ros.org/ROS/Installation) version melodic and the [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) librarie.
 
 1. Clone this project;
 
 2. Install [robot_localization](https://wiki.ros.org/robot_localization);
 
-3. Download the files [data_set.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/data_set.bag?dl=0), [wind_estimator_validating_test_1.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_validating_test_1.bag?dl=0) and [wind_estimator_validating_test_2.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_validating_test_2.bag?dl=0). Save them inside the project in a folder named bag_files/.
+3. Install [rqt_multiplot](http://wiki.ros.org/rqt_multiplot);
 
-4. Running command below you can test with the installation was successfully completed.
+4. Download the files [data_set.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/data_set.bag?dl=0), [wind_estimator_validating_test_1.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_validating_test_1.bag?dl=0) and [wind_estimator_validating_test_2.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_validating_test_2.bag?dl=0). Save them inside the project in a folder named ```bag_files/```;
+
+5. Compile all the project;
+
+6. Running command below you can test with the installation was successfully completed.
 ```
 roslaunch airship_estimator play_data_set.launch
 ```
@@ -51,8 +55,20 @@ Before running ```launch/play_results.launch``` you will have to change the name
 
 ## Wind Estimators
 
-This package presents four alternative versions for estimation of wind velocity, namely: two Extended Kalman Filter approaches (or model-based approaches); a Neural Network (or data-driven approach); and a hybrid estimator which performs a fusion between the model-based and data-driven estimators. The training dataset used for the Neural Network can be found [here](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_training_dataset.bag?dl=0)
+This package presents four alternative versions for estimation of wind velocity, namely: two Extended Kalman Filter approaches (or model-based approaches); a Neural Network (or data-driven approach); and a hybrid estimator which performs a fusion between the model-based and data-driven estimators. The training dataset used for the Neural Network can be found [here](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_training_dataset.bag?dl=0).
 
+Running command below you can test with the estimators are well installed:
+```
+roslaunch airship_estimator test_wind_estimators.launch
+```
+
+The model-based wind estimators (Extended Kalman Filters) are impelemented in C++ as a ROS node in files ```src/wind_estimator_cho2011.cpp```, ```src/wind_estimator.cpp``` and ```src/wind_estimator_simple.cpp```.
+
+The Neural Network is implemented in Python as a ROS node in file ```src/wind_estimator_nn.py```.
+
+The Hybrid estimator is implemented in Python as a ROS node in file ```src/wind_estimator_hybrid.cpp```.
+
+Each node has a launch file in the folder ```launch/``` and a configuration file in the folder ```config/```.
 
 ## Other Resources
 Further details can be found in the papers below: 
