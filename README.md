@@ -19,7 +19,7 @@ UKF
 
 2. Install [robot_localization](https://wiki.ros.org/robot_localization) 
 
-3. Download the file [data_set.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/data_set.bag?dl=0) and save inside the folder bag_files
+3. Download the file [data_set.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/data_set.bag?dl=0) and save inside the project in a folder named bag_files/
 
 4. Run command below for running the data set available
 ```
