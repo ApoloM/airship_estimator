@@ -68,7 +68,7 @@ The Neural Network is implemented in Python as a ROS node in file ```src/wind_es
 
 The Hybrid estimator is implemented in Python as a ROS node in file ```src/wind_estimator_hybrid.cpp```.
 
-Each node has a launch file in the folder ```launch/``` and a configuration file in the folder ```config/```.
+Each node has a configuration file in the folder ```config/``` in which the user can set the covariance matrices, topic names and other parameters.
 
 ## Other Resources
 Further details can be found in the papers below: 
