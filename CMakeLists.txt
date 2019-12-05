@@ -160,6 +160,7 @@ add_executable(frame_converter_node src/frame_converter.cpp)
 add_executable(wind_estimator_node src/wind_estimator.cpp)
 add_executable(wind_estimator_simple_node src/wind_estimator_simple.cpp)
 add_executable(wind_estimator_cho2011_node src/wind_estimator_cho2011.cpp)
+add_executable(wind_estimator_hybrid_node src/wind_estimator_hybrid.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -191,6 +192,10 @@ target_link_libraries(wind_estimator_simple_node
   ${EIGEN3_LIBRARIES}
 )
 target_link_libraries(wind_estimator_cho2011_node
+  ${catkin_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+)
+target_link_libraries(wind_estimator_hybrid_node
   ${catkin_LIBRARIES}
   ${EIGEN3_LIBRARIES}
 )
