@@ -190,7 +190,7 @@ void predict(){
 	zk(2,0) = Vg_enu(0,0);//VE
 	zk(3,0) = windSpeedNNEstimation.vector.x;//VN
 	zk(4,0) = windSpeedNNEstimation.vector.y;//VE
-	zk(5,0) = windSpeedNNEstimation.vector.z;//VE
+	zk(5,0) = windSpeedNNEstimation.vector.z;//coef
 
 	P = F*P*F.transpose() + Q;
 }
