@@ -51,7 +51,7 @@ Before running ```launch/play_results.launch``` you will have to change the name
 
 ## Wind Estimators
 
-This package presents four alternative versions for estimation of wind velocity, namely: two Extended Kalman Filter approaches (or model-based approaches); a Neural Network (or data-driven approach); and a hybrid estimator which performs a fusion between the model-based and data-driven estimators. The training dataset used for the Neural NEtwork can be found [here](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_training_dataset.bag?dl=0)
+This package presents four alternative versions for estimation of wind velocity, namely: two Extended Kalman Filter approaches (or model-based approaches); a Neural Network (or data-driven approach); and a hybrid estimator which performs a fusion between the model-based and data-driven estimators. The training dataset used for the Neural Network can be found [here](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_training_dataset.bag?dl=0)
 
 
 ## Other Resources
