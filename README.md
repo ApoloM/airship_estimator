@@ -14,7 +14,7 @@ It is a pre-requisite the [ROS](http://wiki.ros.org/ROS/Installation) version me
 
 3. Install [rqt_multiplot](http://wiki.ros.org/rqt_multiplot);
 
-4. Download the files [data_set.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/data_set.bag?dl=0), [wind_estimator_validating_test_1.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_validating_test_1.bag?dl=0) and [wind_estimator_validating_test_2.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_validating_test_2.bag?dl=0). Save them inside the project in a folder named ```bag_files/```;
+4. Download the files [data_set.bag](https://www.dropbox.com/s/abjkcnbxy7qy39h/data_set.bag?dl=0), [wind_estimator_validating_test_1.bag](https://www.dropbox.com/s/di1g82vibn2ey2z/wind_validating_test_1.bag?dl=0) and [wind_estimator_validating_test_2.bag](https://www.dropbox.com/s/9c1pbca60b6l6s6/wind_validating_test_2.bag?dl=0). Save them inside the project in a folder named ```bag_files/```;
 
 5. Compile all the project;
 
@@ -30,10 +30,9 @@ The algorithms available are: Extended Kalman Filter (EKF), Unscented Kalman Fil
 ### Visual results
 
 [LPF](https://youtu.be/VL5dvCyOZwY)
-
 [EKF](https://youtu.be/jaATwV0rG30)
-
 [UKF](https://youtu.be/B26xaKtAyWo)
+
 ### How to use
 
 You can configure UKF and EKF parameters by editing the file:
@@ -55,7 +54,7 @@ Before running ```launch/play_results.launch``` you will have to change the name
 
 ## Wind Estimators
 
-This package presents four alternative versions for estimation of wind velocity, namely: two Extended Kalman Filter approaches (or model-based approaches); a Neural Network (or data-driven approach); and a hybrid estimator which performs a fusion between the model-based and data-driven estimators. The training dataset used for the Neural Network can be found [here](https://www.dropbox.com/s/abjkcnbxy7qy39h/wind_estimator_training_dataset.bag?dl=0).
+This package presents four alternative versions for estimation of wind velocity, namely: two Extended Kalman Filter approaches (or model-based approaches); a Neural Network (or data-driven approach); and a hybrid estimator which performs a fusion between the model-based and data-driven estimators. The training dataset used for the Neural Network can be found [here](https://www.dropbox.com/s/97kk4n6inde94c3/wind_estimator_training_dataset.mat?dl=0).
 
 Running command below you can test with the estimators are well installed:
 ```
